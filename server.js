@@ -1,3 +1,4 @@
+// server.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -11,23 +12,24 @@ const PORT = process.env.PORT || 5000;
 // JSON middleware
 app.use(express.json());
 
-// CORS middleware - dynamic for localhost and Vercel frontend
+// CORS middleware - function-based to allow multiple origins
+const allowedOrigins = [
+  "http://localhost:3000",                   // local frontend
+  "https://event-management3.vercel.app"    // deployed frontend
+];
+
 app.use(cors({
   origin: function(origin, callback) {
-    const allowedOrigins = [
-      "http://localhost:3000",                  // local dev
-      "https://event-management3.vercel.app"    // deployed frontend
-    ];
-    if (!origin) return callback(null, true); // allow non-browser requests like Postman
+    // allow requests with no origin (like Postman or server-to-server)
+    if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = "The CORS policy for this site does not allow access from the specified Origin.";
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
       return callback(new Error(msg), false);
     }
     return callback(null, true);
   },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "x-user-id"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
 // Connect to DB and start server
@@ -48,7 +50,7 @@ connectDB()
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {

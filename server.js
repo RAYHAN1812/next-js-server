@@ -1,3 +1,4 @@
+// server.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -11,9 +12,12 @@ const PORT = process.env.PORT || 5000;
 // JSON middleware
 app.use(express.json());
 
-// CORS middleware
+// CORS middleware - fixed for localhost and Vercel frontend
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: [
+    "http://localhost:3000",                     // for local development
+    "https://event-management3.vercel.app"       // your deployed frontend
+  ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "x-user-id"],
 }));
